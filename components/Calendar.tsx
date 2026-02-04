@@ -6,12 +6,13 @@ import DayAppointmentsModal from "./DayAppointmentsModal";
 
 type Props = {
   onSelectDate: (isoDate: string) => void;
+  refreshKey?: number; // Nueva prop para forzar refresh
 };
 
-export default function Calendar({ onSelectDate }: Props) {
+export default function Calendar({ onSelectDate, refreshKey }: Props) {
   const now = new Date();
   const [displayedYear, setDisplayedYear] = useState(now.getFullYear());
-  const [displayedMonth, setDisplayedMonth] = useState(now.getMonth()); // 0-11
+  const [displayedMonth, setDisplayedMonth] = useState(now.getMonth());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
   
@@ -20,21 +21,15 @@ export default function Calendar({ onSelectDate }: Props) {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedDayAppointments, setSelectedDayAppointments] = useState<Appointment[]>([]);
 
-  const firstDayOfMonth = new Date(displayedYear, displayedMonth, 1);
-  const lastDayOfMonth = new Date(displayedYear, displayedMonth + 1, 0);
-  const startWeekday = firstDayOfMonth.getDay();
-  const daysInMonth = lastDayOfMonth.getDate();
-  const weekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-
   // Función para cargar las citas del mes
   const loadAppointments = async () => {
     setLoading(true);
     try {
       const response = await getAllTheAppointmentsByMonth({
         year: displayedYear,
-        month: displayedMonth + 1, // API espera 1-12, useState usa 0-11
+        month: displayedMonth + 1,
         page: 0,
-        size: 100 // Traer todas las citas del mes
+        size: 100
       });
       setAppointments(response.content);
     } catch (error) {
@@ -45,18 +40,28 @@ export default function Calendar({ onSelectDate }: Props) {
     }
   };
 
-  // Cargar citas cuando cambie el mes o año
+  // Cargar citas cuando cambie el mes, año o refreshKey
   useEffect(() => {
     loadAppointments();
-  }, [displayedYear, displayedMonth]);
+  }, [displayedYear, displayedMonth, refreshKey]);
 
-  // Función para obtener citas de un día específico
+  // Función pública para recargar citas (opcional)
+  const refreshAppointments = () => {
+    loadAppointments();
+  };
+
+  // Resto del código igual...
+  const firstDayOfMonth = new Date(displayedYear, displayedMonth, 1);
+  const lastDayOfMonth = new Date(displayedYear, displayedMonth + 1, 0);
+  const startWeekday = firstDayOfMonth.getDay();
+  const daysInMonth = lastDayOfMonth.getDate();
+  const weekdays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
   const getAppointmentsForDay = (day: number) => {
     const dateString = `${displayedYear}-${String(displayedMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     return appointments.filter(appointment => appointment.date === dateString);
   };
 
-  // Manejar click en día
   const handleDayClick = (day: number) => {
     const mm = String(displayedMonth + 1).padStart(2, "0");
     const dd = String(day).padStart(2, "0");
@@ -65,17 +70,14 @@ export default function Calendar({ onSelectDate }: Props) {
     const dayAppointments = getAppointmentsForDay(day);
     
     if (dayAppointments.length > 0) {
-      // Si hay citas, mostrar el modal de citas del día
       setSelectedDate(dateString);
       setSelectedDayAppointments(dayAppointments);
       setShowDayModal(true);
     } else {
-      // Si no hay citas, permitir crear una nueva
       onSelectDate(dateString);
     }
   };
 
-  // Manejar creación de nueva cita desde el modal
   const handleCreateAppointment = () => {
     setShowDayModal(false);
     onSelectDate(selectedDate);
@@ -201,7 +203,6 @@ export default function Calendar({ onSelectDate }: Props) {
         </div>
       </div>
 
-      {/* Modal para mostrar citas del día */}
       <DayAppointmentsModal
         isOpen={showDayModal}
         onClose={() => setShowDayModal(false)}
