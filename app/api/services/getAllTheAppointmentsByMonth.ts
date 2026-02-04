@@ -1,35 +1,28 @@
-import{AppointmentsResponse, GetAppointmentsByMonthParams} from"../interface/ApointmentsInterface";
+import { AppointmentsResponse } from "../interface/ApointmentsInterface";
 
-export const getAllTheAppointmentsByMonth = async ({
-    year,
-    month,
-    page = 0,
-    size = 10
-  }: GetAppointmentsByMonthParams): Promise<AppointmentsResponse> => {
-    try {
-      const url = new URL('https://recersis-api.fly.dev/api/appointments/guest/by-month');
-      url.searchParams.append('year', year.toString());
-      url.searchParams.append('month', month.toString());
-      url.searchParams.append('page', page.toString());
-      url.searchParams.append('size', size.toString());
+interface GetAppointmentsParams {
+  year: number;
+  month: number;
+  page: number;
+  size: number;
+}
+
+export default async function getAllTheAppointmentsByMonth(
+  params: GetAppointmentsParams
+): Promise<AppointmentsResponse> {
+  const { year, month, page, size } = params;
+  const url = `https://recersis-api.fly.dev/api/appointments/guest/by-month?year=${year}&month=${month}&page=${page}&size=${size}`;
   
-      const response = await fetch(url.toString(), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   
-      if (!response.ok) {
-        throw new Error(`Error al obtener las citas: ${response.status} ${response.statusText}`);
-      }
+  if (!response.ok) {
+    throw new Error(`Error ${response.status}: Failed to fetch appointments`);
+  }
   
-      const data: AppointmentsResponse = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error en getAllTheAppointmentsByMonth:', error);
-      throw error;
-    }
-  };
-  
-  export default getAllTheAppointmentsByMonth;
+  return response.json();
+}

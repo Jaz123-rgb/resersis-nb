@@ -24,7 +24,8 @@ export default function Home() {
   // Key para forzar refresh del calendario
   const [calendarRefreshKey, setCalendarRefreshKey] = useState(0);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Actualizar tipo para incluir HTMLSelectElement
+  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
