@@ -7,7 +7,7 @@ export const getAllTheAppointmentsByMonth = async ({
     size = 10
   }: GetAppointmentsByMonthParams): Promise<AppointmentsResponse> => {
     try {
-      const url = new URL('http://localhost:8080/api/appointments/guest/by-month');
+      const url = new URL('https://recersis-api.fly.dev/api/appointments/guest/by-month');
       url.searchParams.append('year', year.toString());
       url.searchParams.append('month', month.toString());
       url.searchParams.append('page', page.toString());

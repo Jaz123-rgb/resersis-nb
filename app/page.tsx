@@ -31,7 +31,7 @@ export default function Home() {
     setError(null);
     setResult(null);
     try {
-      const res = await fetch("http://localhost:8080/api/appointments/guest", {
+      const res = await fetch("https://recersis-api.fly.dev/api/appointments/guest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
