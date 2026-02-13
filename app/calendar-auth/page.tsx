@@ -8,8 +8,14 @@ export default function CalendarAuthPage() {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [isDay, setIsDay] = useState(true); // Estado para determinar si es día
 
   useEffect(() => {
+    // Determinar si es día o noche basado en la hora actual
+    const now = new Date();
+    const hour = now.getHours();
+    setIsDay(hour >= 6 && hour < 18); // Día de 6 AM a 6 PM
+
     // Verificar diferentes formas de almacenar el token
     const storedToken = localStorage.getItem('authToken') || 
                        localStorage.getItem('accessToken');
@@ -41,22 +47,22 @@ export default function CalendarAuthPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex justify-center items-center">
-        <div className="text-lg text-black dark:text-white">Verificando autenticación...</div>
+      <div className={`min-h-screen ${isDay ? 'bg-white' : 'bg-black'} flex justify-center items-center`}>
+        <div className={`text-lg ${isDay ? 'text-black' : 'text-white'}`}>Verificando autenticación...</div>
       </div>
     );
   }
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-black flex justify-center items-center">
+      <div className={`min-h-screen ${isDay ? 'bg-white' : 'bg-black'} flex justify-center items-center`}>
         <div className="text-red-500 text-lg">No autorizado. Redirigiendo...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className={`min-h-screen ${isDay ? 'bg-white' : 'bg-black'}`}>
       <CalendarAuth token={token} />
     </div>
   );

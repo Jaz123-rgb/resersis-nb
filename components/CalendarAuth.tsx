@@ -29,6 +29,17 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
   const [error, setError] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const updateTheme = () => {
+      const hour = new Date().getHours();
+      setIsDarkMode(hour < 6 || hour > 18); // Diurno: 6-18, Nocturno: fuera
+    };
+    updateTheme();
+    const interval = setInterval(updateTheme, 60000); // Actualizar cada minuto
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const loadAppointments = async () => {
@@ -119,13 +130,11 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="max-w-md mx-auto text-center">
-          <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm p-8">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white"></div>
-              <span className="text-lg text-gray-700 dark:text-gray-300">Cargando citas...</span>
-            </div>
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+        <div className={`max-w-md mx-auto text-center ${isDarkMode ? 'bg-black border-gray-700' : 'bg-white border-gray-300'} border rounded-lg shadow-sm p-8`}>
+          <div className="flex flex-col items-center space-y-4">
+            <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${isDarkMode ? 'border-white' : 'border-black'}`}></div>
+            <span className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Cargando citas...</span>
           </div>
         </div>
       </div>
@@ -134,18 +143,16 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="max-w-md mx-auto text-center">
-          <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm p-8">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="text-red-600 text-xl font-semibold">{error}</div>
-              <button 
-                onClick={() => window.location.reload()}
-                className="px-6 py-2 bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black rounded-lg font-medium transition-colors"
-              >
-                Intentar de nuevo
-              </button>
-            </div>
+      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+        <div className={`max-w-md mx-auto text-center ${isDarkMode ? 'bg-black border-gray-700' : 'bg-white border-gray-300'} border rounded-lg shadow-sm p-8`}>
+          <div className="flex flex-col items-center space-y-4">
+            <div className={`text-red-600 text-xl font-semibold`}>{error}</div>
+            <button 
+              onClick={() => window.location.reload()}
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${isDarkMode ? 'bg-white hover:bg-gray-200 text-black' : 'bg-black hover:bg-gray-800 text-white'}`}
+            >
+              Intentar de nuevo
+            </button>
           </div>
         </div>
       </div>
@@ -155,44 +162,44 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
   const days = getDaysInMonth(currentMonth);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className={`min-h-screen ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-black dark:text-white mb-2">
+            <h1 className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>
               Mis Citas Programadas
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">Gestiona y visualiza todas tus citas</p>
+            <p className={`text-gray-600 ${isDarkMode ? 'text-gray-400' : ''}`}>Gestiona y visualiza todas tus citas</p>
           </div>
 
           {/* Navegación del mes */}
           <div className="w-full mb-4 flex items-center justify-between">
             <button 
               onClick={() => navigateMonth('prev')}
-              className="px-3 py-1 rounded border bg-white hover:bg-gray-100 dark:bg-black dark:hover:bg-gray-900 border-gray-300 dark:border-gray-700 text-black dark:text-white transition-colors"
+              className={`px-3 py-1 rounded border transition-colors ${isDarkMode ? 'bg-black hover:bg-gray-900 border-gray-700 text-white' : 'bg-white hover:bg-gray-100 border-gray-300 text-black'}`}
             >
               ← Anterior
             </button>
             
-            <h2 className="text-2xl font-semibold text-black dark:text-white capitalize">
+            <h2 className={`text-2xl font-semibold capitalize ${isDarkMode ? 'text-white' : 'text-black'}`}>
               {formatMonth(currentMonth)}
             </h2>
             
             <button 
               onClick={() => navigateMonth('next')}
-              className="px-3 py-1 rounded border bg-white hover:bg-gray-100 dark:bg-black dark:hover:bg-gray-900 border-gray-300 dark:border-gray-700 text-black dark:text-white transition-colors"
+              className={`px-3 py-1 rounded border transition-colors ${isDarkMode ? 'bg-black hover:bg-gray-900 border-gray-700 text-white' : 'bg-white hover:bg-gray-100 border-gray-300 text-black'}`}
             >
               Siguiente →
             </button>
           </div>
 
           {/* Calendario */}
-          <div className="bg-black">
+          <div className={`${isDarkMode ? 'bg-black' : 'bg-white'}`}>
             {/* Encabezados de días */}
             <div className="grid grid-cols-7 gap-2 text-center text-sm mb-2">
               {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
-                <div key={day} className="font-medium text-gray-600 dark:text-gray-300">
+                <div key={day} className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   {day}
                 </div>
               ))}
@@ -201,7 +208,7 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
             <div className="grid grid-cols-7 gap-2">
               {/* Días vacíos al inicio */}
               {Array.from({ length: days.filter(d => d === null).length }).map((_, i) => (
-                <div key={`empty-${i}`} className="h-20 border rounded bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700" />
+                <div key={`empty-${i}`} className={`h-20 border rounded ${isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-100 border-gray-300'}`} />
               ))}
               
               {/* Días del mes */}
@@ -217,38 +224,38 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
                   <button
                     key={`day-${day}`}
                     onClick={() => dayAppointments.length > 0 && openAppointmentModal(dayAppointments[0])}
-                    className={`h-20 border rounded flex flex-col items-start justify-between p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+                    className={`h-20 border rounded flex flex-col items-start justify-between p-2 transition-colors ${
                       isToday 
-                        ? "border-blue-500 bg-white dark:bg-black" 
+                        ? `border-blue-500 ${isDarkMode ? 'bg-black' : 'bg-white'}` 
                         : hasAppointments 
-                          ? "border-green-400 dark:border-green-500 bg-green-50 dark:bg-green-900/20" 
-                          : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black"
-                    }`}
+                          ? `border-green-400 ${isDarkMode ? 'bg-green-900/20' : 'bg-green-50'}`
+                          : `${isDarkMode ? 'border-gray-700 bg-black' : 'border-gray-300 bg-white'}`
+                    } ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
                   >
                     <span className={`text-sm font-medium ${
                       isToday 
                         ? "text-blue-600" 
                         : hasAppointments 
                           ? "text-green-700 dark:text-green-400"
-                          : "text-black dark:text-white"
+                          : `${isDarkMode ? 'text-white' : 'text-black'}`
                     }`}>
                       {day}
                     </span>
                     {hasAppointments && (
                       <div className="flex flex-col items-start w-full">
-                        <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                        <div className={`text-xs font-medium ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
                           {dayAppointments.length} cita{dayAppointments.length > 1 ? 's' : ''}
                         </div>
                         {dayAppointments.slice(0, 2).map((appointment, index) => (
                           <div 
                             key={`${appointment.date}-${appointment.time}-${index}`} 
-                            className="text-xs text-gray-600 dark:text-gray-400 truncate w-full"
+                            className={`text-xs truncate w-full ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
                           >
                             {appointment.time.slice(0, 5)} - {appointment.guestName}
                           </div>
                         ))}
                         {dayAppointments.length > 2 && (
-                          <div className="text-xs text-gray-500 dark:text-gray-500">
+                          <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                             +{dayAppointments.length - 2} más
                           </div>
                         )}
@@ -261,8 +268,8 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
           </div>
 
           {/* Lista de citas del mes actual */}
-          <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-            <h3 className="text-xl font-semibold text-black dark:text-white mb-6">
+          <div className={`${isDarkMode ? 'bg-black border-gray-700' : 'bg-white border-gray-300'} border rounded-lg p-6`}>
+            <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-black'}`}>
               Citas de {formatMonth(currentMonth)}
             </h3>
             
@@ -275,7 +282,7 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
                 <svg className="mx-auto h-12 w-12 text-gray-400" width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <p className="text-gray-500 dark:text-gray-400 mt-4">No hay citas programadas este mes</p>
+                <p className={`text-gray-500 mt-4 ${isDarkMode ? 'text-gray-400' : ''}`}>No hay citas programadas este mes</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -289,22 +296,22 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
                   .map(apt => (
                     <div 
                       key={apt.id} 
-                      className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                      className={`border rounded-lg p-4 transition-colors cursor-pointer ${isDarkMode ? 'border-gray-700 hover:bg-gray-800' : 'border-gray-300 hover:bg-gray-50'}`}
                       onClick={() => openAppointmentModal(apt)}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center space-x-3">
                           <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                          <h4 className="font-medium text-black dark:text-white">{apt.guestName}</h4>
+                          <h4 className={`font-medium ${isDarkMode ? 'text-white' : 'text-black'}`}>{apt.guestName}</h4>
                         </div>
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${isDarkMode ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800'}`}>
                           {apt.status === 'CONFIRMED' ? 'Confirmada' : 'Pendiente'}
                         </span>
                       </div>
                       
-                      <p className="text-gray-600 dark:text-gray-400 mb-3">{apt.reason}</p>
+                      <p className={`mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{apt.reason}</p>
                       
-                      <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                      <div className={`flex items-center space-x-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         <div className="flex items-center space-x-1">
                           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -325,16 +332,16 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
           </div>
 
           {/* Leyenda */}
-          <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-black dark:text-white mb-4">Estado de las citas</h3>
+          <div className={`${isDarkMode ? 'bg-black border-gray-700' : 'bg-white border-gray-300'} border rounded-lg p-6`}>
+            <h3 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-white' : 'text-black'}`}>Estado de las citas</h3>
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Citas programadas</span>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Citas programadas</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 rounded border border-blue-500"></div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Día actual</span>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Día actual</span>
               </div>
             </div>
           </div>
@@ -344,12 +351,12 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
       {/* Modal de detalles de cita */}
       {selectedAppointment && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={closeModal}>
-          <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-gray-300 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-black dark:text-white">Detalles de la Cita</h3>
+          <div className={`${isDarkMode ? 'bg-black border-gray-700' : 'bg-white border-gray-300'} border rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto`} onClick={(e) => e.stopPropagation()}>
+            <div className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}>
+              <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}>Detalles de la Cita</h3>
               <button 
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className={`transition-colors ${isDarkMode ? 'text-gray-300 hover:text-gray-100' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -359,52 +366,52 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
 
             <div className="p-6 space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Paciente</label>
-                <p className="text-lg text-black dark:text-white">{selectedAppointment.guestName}</p>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Paciente</label>
+                <p className={`text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>{selectedAppointment.guestName}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-                <p className="text-gray-600 dark:text-gray-400">{selectedAppointment.guestEmail}</p>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email</label>
+                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{selectedAppointment.guestEmail}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha</label>
-                  <p className="text-black dark:text-white">{new Date(selectedAppointment.date).toLocaleDateString('es-ES')}</p>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Fecha</label>
+                  <p className={`${isDarkMode ? 'text-white' : 'text-black'}`}>{new Date(selectedAppointment.date).toLocaleDateString('es-ES')}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hora</label>
-                  <p className="text-black dark:text-white">{selectedAppointment.time.slice(0, 5)}</p>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Hora</label>
+                  <p className={`${isDarkMode ? 'text-white' : 'text-black'}`}>{selectedAppointment.time.slice(0, 5)}</p>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Motivo</label>
-                <p className="text-gray-600 dark:text-gray-400">{selectedAppointment.reason}</p>
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Motivo</label>
+                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{selectedAppointment.reason}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
-                <span className="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Estado</label>
+                <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${isDarkMode ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800'}`}>
                   {selectedAppointment.status === 'CONFIRMED' ? 'Confirmada' : 'Pendiente'}
                 </span>
               </div>
 
               {selectedAppointment.createdAt && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha de creación</label>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Fecha de creación</label>
+                  <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {new Date(selectedAppointment.createdAt).toLocaleString('es-ES')}
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="flex justify-end p-6 border-t border-gray-300 dark:border-gray-700">
+            <div className={`flex justify-end p-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}>
               <button 
                 onClick={closeModal}
-                className="px-6 py-2 bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black rounded-lg font-medium transition-colors"
+                className={`px-6 py-2 rounded-lg font-medium transition-colors ${isDarkMode ? 'bg-white hover:bg-gray-200 text-black' : 'bg-black hover:bg-gray-800 text-white'}`}
               >
                 Cerrar
               </button>
