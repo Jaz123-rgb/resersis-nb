@@ -41,22 +41,22 @@ export default function CalendarAuthPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-lg">Verificando autenticación...</div>
+      <div className="min-h-screen bg-black flex justify-center items-center">
+        <div className="text-lg text-black dark:text-white">Verificando autenticación...</div>
       </div>
     );
   }
 
   if (!token) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="min-h-screen bg-black flex justify-center items-center">
         <div className="text-red-500 text-lg">No autorizado. Redirigiendo...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="min-h-screen bg-black">
       <CalendarAuth token={token} />
     </div>
   );

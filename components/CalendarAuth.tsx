@@ -119,11 +119,11 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-96">
-            <div className="flex items-center space-x-2">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center">
+          <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm p-8">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white"></div>
               <span className="text-lg text-gray-700 dark:text-gray-300">Cargando citas...</span>
             </div>
           </div>
@@ -134,14 +134,14 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-96">
-            <div className="text-center">
-              <div className="text-red-500 dark:text-red-400 text-lg font-medium">{error}</div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center">
+          <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm p-8">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="text-red-600 text-xl font-semibold">{error}</div>
               <button 
-                onClick={() => window.location.reload()} 
-                className="mt-4 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+                onClick={() => window.location.reload()}
+                className="px-6 py-2 bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black rounded-lg font-medium transition-colors"
               >
                 Intentar de nuevo
               </button>
@@ -155,110 +155,114 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
   const days = getDaysInMonth(currentMonth);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="space-y-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-2">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-black dark:text-white mb-2">
               Mis Citas Programadas
             </h1>
             <p className="text-gray-600 dark:text-gray-400">Gestiona y visualiza todas tus citas</p>
           </div>
 
           {/* Navegación del mes */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <div className="flex justify-between items-center">
-              <button
-                onClick={() => navigateMonth('prev')}
-                className="flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Anterior
-              </button>
-              
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 capitalize">
-                {formatMonth(currentMonth)}
-              </h2>
-              
-              <button
-                onClick={() => navigateMonth('next')}
-                className="flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-              >
-                Siguiente
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
+          <div className="w-full mb-4 flex items-center justify-between">
+            <button 
+              onClick={() => navigateMonth('prev')}
+              className="px-3 py-1 rounded border bg-white hover:bg-gray-100 dark:bg-black dark:hover:bg-gray-900 border-gray-300 dark:border-gray-700 text-black dark:text-white transition-colors"
+            >
+              ← Anterior
+            </button>
+            
+            <h2 className="text-2xl font-semibold text-black dark:text-white capitalize">
+              {formatMonth(currentMonth)}
+            </h2>
+            
+            <button 
+              onClick={() => navigateMonth('next')}
+              className="px-3 py-1 rounded border bg-white hover:bg-gray-100 dark:bg-black dark:hover:bg-gray-900 border-gray-300 dark:border-gray-700 text-black dark:text-white transition-colors"
+            >
+              Siguiente →
+            </button>
           </div>
 
           {/* Calendario */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
-            <div className="grid grid-cols-7 gap-0">
-              {/* Encabezados de días */}
-              {['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'].map(day => (
-                <div key={day} className="bg-blue-600 dark:bg-blue-700 text-white p-4 text-center font-semibold">
-                  <div className="hidden sm:block">{day}</div>
-                  <div className="sm:hidden">{day.slice(0, 3)}</div>
+          <div className="bg-black">
+            {/* Encabezados de días */}
+            <div className="grid grid-cols-7 gap-2 text-center text-sm mb-2">
+              {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
+                <div key={day} className="font-medium text-gray-600 dark:text-gray-300">
+                  {day}
                 </div>
+              ))}
+            </div>
+            
+            <div className="grid grid-cols-7 gap-2">
+              {/* Días vacíos al inicio */}
+              {Array.from({ length: days.filter(d => d === null).length }).map((_, i) => (
+                <div key={`empty-${i}`} className="h-20 border rounded bg-gray-100 dark:bg-gray-900 border-gray-300 dark:border-gray-700" />
               ))}
               
               {/* Días del mes */}
-              {days.map((day, index) => {
-                const dayAppointments = day ? getAppointmentsForDay(day) : [];
+              {days.filter(day => day !== null).map(day => {
+                const dayAppointments = getAppointmentsForDay(day!);
                 const isToday = day && 
                   new Date().getDate() === day &&
                   new Date().getMonth() === currentMonth.getMonth() &&
                   new Date().getFullYear() === currentMonth.getFullYear();
+                const hasAppointments = dayAppointments.length > 0;
                 
                 return (
-                  <div
-                    key={index}
-                    className={`min-h-[120px] p-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                      isToday ? 'bg-blue-50 dark:bg-blue-900 border-blue-300 dark:border-blue-600' : ''
+                  <button
+                    key={`day-${day}`}
+                    onClick={() => dayAppointments.length > 0 && openAppointmentModal(dayAppointments[0])}
+                    className={`h-20 border rounded flex flex-col items-start justify-between p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+                      isToday 
+                        ? "border-blue-500 bg-white dark:bg-black" 
+                        : hasAppointments 
+                          ? "border-green-400 dark:border-green-500 bg-green-50 dark:bg-green-900/20" 
+                          : "border-gray-300 dark:border-gray-700 bg-white dark:bg-black"
                     }`}
                   >
-                    {day && (
-                      <>
-                        <div className={`text-sm font-medium mb-2 ${
-                          isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-700 dark:text-gray-300'
-                        }`}>
-                          {day}
-                          {isToday && <div className="text-xs text-blue-500 dark:text-blue-400">Hoy</div>}
+                    <span className={`text-sm font-medium ${
+                      isToday 
+                        ? "text-blue-600" 
+                        : hasAppointments 
+                          ? "text-green-700 dark:text-green-400"
+                          : "text-black dark:text-white"
+                    }`}>
+                      {day}
+                    </span>
+                    {hasAppointments && (
+                      <div className="flex flex-col items-start w-full">
+                        <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                          {dayAppointments.length} cita{dayAppointments.length > 1 ? 's' : ''}
                         </div>
-                        
-                        <div className="space-y-1">
-                          {dayAppointments.slice(0, 3).map(apt => (
-                            <div
-                              key={apt.id}
-                              className={`text-xs p-2 rounded-md text-white shadow-sm ${getStatusColor(apt.status)} hover:opacity-80 cursor-pointer transition-opacity`}
-                              title={`${apt.guestName} - ${apt.reason} - ${apt.time}`}
-                              onClick={() => openAppointmentModal(apt)}
-                            >
-                              <div className="font-medium">{apt.time.slice(0, 5)}</div>
-                              <div className="truncate">{apt.guestName}</div>
-                            </div>
-                          ))}
-                          {dayAppointments.length > 3 && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                              +{dayAppointments.length - 3} más
-                            </div>
-                          )}
-                        </div>
-                      </>
+                        {dayAppointments.slice(0, 2).map((appointment, index) => (
+                          <div 
+                            key={`${appointment.date}-${appointment.time}-${index}`} 
+                            className="text-xs text-gray-600 dark:text-gray-400 truncate w-full"
+                          >
+                            {appointment.time.slice(0, 5)} - {appointment.guestName}
+                          </div>
+                        ))}
+                        {dayAppointments.length > 2 && (
+                          <div className="text-xs text-gray-500 dark:text-gray-500">
+                            +{dayAppointments.length - 2} más
+                          </div>
+                        )}
+                      </div>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
           </div>
 
           {/* Lista de citas del mes actual */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">
+          <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+            <h3 className="text-xl font-semibold text-black dark:text-white mb-6">
               Citas de {formatMonth(currentMonth)}
             </h3>
             
@@ -268,13 +272,13 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
                      aptDate.getFullYear() === currentMonth.getFullYear();
             }).length === 0 ? (
               <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="mx-auto h-12 w-12 text-gray-400" width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">No hay citas programadas este mes</p>
+                <p className="text-gray-500 dark:text-gray-400 mt-4">No hay citas programadas este mes</p>
               </div>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-4">
                 {appointments
                   .filter(apt => {
                     const aptDate = new Date(apt.date);
@@ -285,33 +289,33 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
                   .map(apt => (
                     <div 
                       key={apt.id} 
-                      className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md dark:hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800"
+                      className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
                       onClick={() => openAppointmentModal(apt)}
                     >
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-3 h-3 rounded-full bg-blue-500 dark:bg-blue-400"></div>
-                          <h4 className="font-semibold text-gray-800 dark:text-gray-200">{apt.guestName}</h4>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                          <h4 className="font-medium text-black dark:text-white">{apt.guestName}</h4>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(apt.status)}`}>
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                           {apt.status === 'CONFIRMED' ? 'Confirmada' : 'Pendiente'}
                         </span>
                       </div>
                       
-                      <p className="text-gray-600 dark:text-gray-400 mb-3 text-sm">{apt.reason}</p>
+                      <p className="text-gray-600 dark:text-gray-400 mb-3">{apt.reason}</p>
                       
-                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-4">
-                        <div className="flex items-center">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center space-x-1">
+                          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
-                          {new Date(apt.date).toLocaleDateString('es-ES')}
+                          <span>{new Date(apt.date).toLocaleDateString('es-ES')}</span>
                         </div>
-                        <div className="flex items-center">
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center space-x-1">
+                          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          {apt.time.slice(0, 5)}
+                          <span>{apt.time.slice(0, 5)}</span>
                         </div>
                       </div>
                     </div>
@@ -321,20 +325,16 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
           </div>
 
           {/* Leyenda */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-6">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Estado de las citas</h3>
-            <div className="flex flex-wrap gap-6">
+          <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg p-6">
+            <h3 className="text-lg font-medium text-black dark:text-white mb-4">Estado de las citas</h3>
+            <div className="flex flex-wrap gap-4">
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-green-500 dark:bg-green-600 rounded-full"></div>
-                <span className="text-gray-700 dark:text-gray-300">Confirmadas</span>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Citas programadas</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-yellow-500 dark:bg-yellow-600 rounded-full"></div>
-                <span className="text-gray-700 dark:text-gray-300">Pendientes</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-blue-500 dark:bg-blue-600 rounded-full"></div>
-                <span className="text-gray-700 dark:text-gray-300">Programadas</span>
+                <div className="w-3 h-3 rounded border border-blue-500"></div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Día actual</span>
               </div>
             </div>
           </div>
@@ -344,67 +344,67 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
       {/* Modal de detalles de cita */}
       {selectedAppointment && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={closeModal}>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">Detalles de la Cita</h3>
-              <button
+          <div className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-gray-300 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-black dark:text-white">Detalles de la Cita</h3>
+              <button 
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="p-6 space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Paciente</label>
-                <p className="text-lg text-gray-800 dark:text-gray-200">{selectedAppointment.guestName}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Paciente</label>
+                <p className="text-lg text-black dark:text-white">{selectedAppointment.guestName}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Email</label>
-                <p className="text-gray-800 dark:text-gray-200">{selectedAppointment.guestEmail}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                <p className="text-gray-600 dark:text-gray-400">{selectedAppointment.guestEmail}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Fecha</label>
-                  <p className="text-gray-800 dark:text-gray-200">{new Date(selectedAppointment.date).toLocaleDateString('es-ES')}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha</label>
+                  <p className="text-black dark:text-white">{new Date(selectedAppointment.date).toLocaleDateString('es-ES')}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Hora</label>
-                  <p className="text-gray-800 dark:text-gray-200">{selectedAppointment.time.slice(0, 5)}</p>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hora</label>
+                  <p className="text-black dark:text-white">{selectedAppointment.time.slice(0, 5)}</p>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Motivo</label>
-                <p className="text-gray-800 dark:text-gray-200">{selectedAppointment.reason}</p>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Motivo</label>
+                <p className="text-gray-600 dark:text-gray-400">{selectedAppointment.reason}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Estado</label>
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(selectedAppointment.status)}`}>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+                <span className="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                   {selectedAppointment.status === 'CONFIRMED' ? 'Confirmada' : 'Pendiente'}
                 </span>
               </div>
 
               {selectedAppointment.createdAt && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de creación</label>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fecha de creación</label>
+                  <p className="text-gray-600 dark:text-gray-400">
                     {new Date(selectedAppointment.createdAt).toLocaleString('es-ES')}
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="mt-6 flex justify-end">
-              <button
+            <div className="flex justify-end p-6 border-t border-gray-300 dark:border-gray-700">
+              <button 
                 onClick={closeModal}
-                className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
+                className="px-6 py-2 bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black rounded-lg font-medium transition-colors"
               >
                 Cerrar
               </button>
