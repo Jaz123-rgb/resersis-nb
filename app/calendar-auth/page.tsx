@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import CalendarAuth from '@/components/CalendarAuth';
+import CalendarAuth from '@/components/calendar-auth/CalendarAuth';
 
 export default function CalendarAuthPage() {
   const [token, setToken] = useState<string | null>(null);
