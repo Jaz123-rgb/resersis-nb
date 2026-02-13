@@ -11,7 +11,7 @@ export default function LoginPage() {
     
     // Redirigir al dashboard después del login exitoso
     setTimeout(() => {
-      router.push('/dashboard'); // o la ruta principal de tu app
+      router.push('/calendar-auth'); // o la ruta principal de tu app
     }, 1500);
   };
 
