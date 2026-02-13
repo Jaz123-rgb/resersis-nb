@@ -5,7 +5,7 @@ WORKDIR /app
 # Install dependencies
 FROM base AS deps
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Build the app
 FROM base AS builder
@@ -14,9 +14,6 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-
-# Instalar devDependencies para el build
-RUN npm ci
 
 RUN npm run build
 
