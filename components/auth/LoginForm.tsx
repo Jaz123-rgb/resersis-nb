@@ -12,8 +12,8 @@ interface LoginFormProps {
 export default function LoginForm({ onSuccess, onCancel }: LoginFormProps) {
   const { login, loading, error, success } = useLogin();
   const [formData, setFormData] = useState<LoginRequest>({
-    email: 'pjaziel723@gmail.com',
-    password: 'HBZ427IxFfXdmQl'
+    email: '',
+    password: ''
   });
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
