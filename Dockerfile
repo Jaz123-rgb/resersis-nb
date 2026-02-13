@@ -15,6 +15,9 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# Instalar devDependencies para el build
+RUN npm ci
+
 RUN npm run build
 
 # Production image
