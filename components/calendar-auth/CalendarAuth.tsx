@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { getAuthenticatedAppointments } from '@/lib/appointmentsAuthService';
+import CalendarHeader from './CalendarHeader';
+import MonthNavigation from './MonthNavigation';
+import CalendarGrid from './CalendarGrid';
+import AppointmentList from './AppointmentList';
+import Legend from './Legend';
+import AppointmentModal from './AppointmentModal';
 
 interface Appointment {
   id: number;
@@ -109,17 +115,6 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'CONFIRMED':
-        return 'bg-green-500 dark:bg-green-600';
-      case 'PENDING':
-        return 'bg-yellow-500 dark:bg-yellow-600';
-      default:
-        return 'bg-blue-500 dark:bg-blue-600';
-    }
-  };
-
   const openAppointmentModal = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
   };
@@ -165,260 +160,35 @@ export default function CalendarAuth({ token }: CalendarAuthProps) {
     <div className={`min-h-screen ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          {/* Header */}
-          <div className="text-center">
-            <h1 className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-black'}`}>
-              Mis Citas Programadas
-            </h1>
-            <p className={`text-gray-600 ${isDarkMode ? 'text-gray-400' : ''}`}>Gestiona y visualiza todas tus citas</p>
-          </div>
-
-          {/* Navegación del mes */}
-          <div className="w-full mb-4 flex items-center justify-between">
-            <button 
-              onClick={() => navigateMonth('prev')}
-              className={`px-3 py-1 rounded border transition-colors ${isDarkMode ? 'bg-black hover:bg-gray-900 border-gray-700 text-white' : 'bg-white hover:bg-gray-100 border-gray-300 text-black'}`}
-            >
-              ← Anterior
-            </button>
-            
-            <h2 className={`text-2xl font-semibold capitalize ${isDarkMode ? 'text-white' : 'text-black'}`}>
-              {formatMonth(currentMonth)}
-            </h2>
-            
-            <button 
-              onClick={() => navigateMonth('next')}
-              className={`px-3 py-1 rounded border transition-colors ${isDarkMode ? 'bg-black hover:bg-gray-900 border-gray-700 text-white' : 'bg-white hover:bg-gray-100 border-gray-300 text-black'}`}
-            >
-              Siguiente →
-            </button>
-          </div>
-
-          {/* Calendario */}
-          <div className={`${isDarkMode ? 'bg-black' : 'bg-white'}`}>
-            {/* Encabezados de días */}
-            <div className="grid grid-cols-7 gap-2 text-center text-sm mb-2">
-              {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
-                <div key={day} className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {day}
-                </div>
-              ))}
-            </div>
-            
-            <div className="grid grid-cols-7 gap-2">
-              {/* Días vacíos al inicio */}
-              {Array.from({ length: days.filter(d => d === null).length }).map((_, i) => (
-                <div key={`empty-${i}`} className={`h-20 border rounded ${isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-gray-100 border-gray-300'}`} />
-              ))}
-              
-              {/* Días del mes */}
-              {days.filter(day => day !== null).map(day => {
-                const dayAppointments = getAppointmentsForDay(day!);
-                const isToday = day && 
-                  new Date().getDate() === day &&
-                  new Date().getMonth() === currentMonth.getMonth() &&
-                  new Date().getFullYear() === currentMonth.getFullYear();
-                const hasAppointments = dayAppointments.length > 0;
-                
-                return (
-                  <button
-                    key={`day-${day}`}
-                    onClick={() => dayAppointments.length > 0 && openAppointmentModal(dayAppointments[0])}
-                    className={`h-20 border rounded flex flex-col items-start justify-between p-2 transition-colors ${
-                      isToday 
-                        ? `border-blue-500 ${isDarkMode ? 'bg-black' : 'bg-white'}` 
-                        : hasAppointments 
-                          ? `border-green-400 ${isDarkMode ? 'bg-green-900/20' : 'bg-green-50'}`
-                          : `${isDarkMode ? 'border-gray-700 bg-black' : 'border-gray-300 bg-white'}`
-                    } ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
-                  >
-                    <span className={`text-sm font-medium ${
-                      isToday 
-                        ? "text-blue-600" 
-                        : hasAppointments 
-                          ? "text-green-700 dark:text-green-400"
-                          : `${isDarkMode ? 'text-white' : 'text-black'}`
-                    }`}>
-                      {day}
-                    </span>
-                    {hasAppointments && (
-                      <div className="flex flex-col items-start w-full">
-                        <div className={`text-xs font-medium ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-                          {dayAppointments.length} cita{dayAppointments.length > 1 ? 's' : ''}
-                        </div>
-                        {dayAppointments.slice(0, 2).map((appointment, index) => (
-                          <div 
-                            key={`${appointment.date}-${appointment.time}-${index}`} 
-                            className={`text-xs truncate w-full ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
-                          >
-                            {appointment.time.slice(0, 5)} - {appointment.guestName}
-                          </div>
-                        ))}
-                        {dayAppointments.length > 2 && (
-                          <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                            +{dayAppointments.length - 2} más
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Lista de citas del mes actual */}
-          <div className={`${isDarkMode ? 'bg-black border-gray-700' : 'bg-white border-gray-300'} border rounded-lg p-6`}>
-            <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-black'}`}>
-              Citas de {formatMonth(currentMonth)}
-            </h3>
-            
-            {appointments.filter(apt => {
-              const aptDate = new Date(apt.date);
-              return aptDate.getMonth() === currentMonth.getMonth() && 
-                     aptDate.getFullYear() === currentMonth.getFullYear();
-            }).length === 0 ? (
-              <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-gray-400" width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p className={`text-gray-500 mt-4 ${isDarkMode ? 'text-gray-400' : ''}`}>No hay citas programadas este mes</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {appointments
-                  .filter(apt => {
-                    const aptDate = new Date(apt.date);
-                    return aptDate.getMonth() === currentMonth.getMonth() && 
-                           aptDate.getFullYear() === currentMonth.getFullYear();
-                  })
-                  .sort((a, b) => new Date(a.date + ' ' + a.time).getTime() - new Date(b.date + ' ' + b.time).getTime())
-                  .map(apt => (
-                    <div 
-                      key={apt.id} 
-                      className={`border rounded-lg p-4 transition-colors cursor-pointer ${isDarkMode ? 'border-gray-700 hover:bg-gray-800' : 'border-gray-300 hover:bg-gray-50'}`}
-                      onClick={() => openAppointmentModal(apt)}
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                          <h4 className={`font-medium ${isDarkMode ? 'text-white' : 'text-black'}`}>{apt.guestName}</h4>
-                        </div>
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${isDarkMode ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800'}`}>
-                          {apt.status === 'CONFIRMED' ? 'Confirmada' : 'Pendiente'}
-                        </span>
-                      </div>
-                      
-                      <p className={`mb-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{apt.reason}</p>
-                      
-                      <div className={`flex items-center space-x-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        <div className="flex items-center space-x-1">
-                          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <span>{new Date(apt.date).toLocaleDateString('es-ES')}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <span>{apt.time.slice(0, 5)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-
-          {/* Leyenda */}
-          <div className={`${isDarkMode ? 'bg-black border-gray-700' : 'bg-white border-gray-300'} border rounded-lg p-6`}>
-            <h3 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-white' : 'text-black'}`}>Estado de las citas</h3>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Citas programadas</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded border border-blue-500"></div>
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Día actual</span>
-              </div>
-            </div>
-          </div>
+          <CalendarHeader isDarkMode={isDarkMode} />
+          <MonthNavigation 
+            isDarkMode={isDarkMode} 
+            currentMonth={currentMonth} 
+            formatMonth={formatMonth} 
+            navigateMonth={navigateMonth} 
+          />
+          <CalendarGrid 
+            isDarkMode={isDarkMode} 
+            days={days} 
+            getAppointmentsForDay={getAppointmentsForDay} 
+            currentMonth={currentMonth} 
+            openAppointmentModal={openAppointmentModal} 
+          />
+          <AppointmentList 
+            isDarkMode={isDarkMode} 
+            appointments={appointments} 
+            currentMonth={currentMonth} 
+            formatMonth={formatMonth} 
+            openAppointmentModal={openAppointmentModal} 
+          />
+          <Legend isDarkMode={isDarkMode} />
         </div>
       </div>
-
-      {/* Modal de detalles de cita */}
-      {selectedAppointment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={closeModal}>
-          <div className={`${isDarkMode ? 'bg-black border-gray-700' : 'bg-white border-gray-300'} border rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto`} onClick={(e) => e.stopPropagation()}>
-            <div className={`flex items-center justify-between p-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}>
-              <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}>Detalles de la Cita</h3>
-              <button 
-                onClick={closeModal}
-                className={`transition-colors ${isDarkMode ? 'text-gray-300 hover:text-gray-100' : 'text-gray-400 hover:text-gray-600'}`}
-              >
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Paciente</label>
-                <p className={`text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>{selectedAppointment.guestName}</p>
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email</label>
-                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{selectedAppointment.guestEmail}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Fecha</label>
-                  <p className={`${isDarkMode ? 'text-white' : 'text-black'}`}>{new Date(selectedAppointment.date).toLocaleDateString('es-ES')}</p>
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Hora</label>
-                  <p className={`${isDarkMode ? 'text-white' : 'text-black'}`}>{selectedAppointment.time.slice(0, 5)}</p>
-                </div>
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Motivo</label>
-                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{selectedAppointment.reason}</p>
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Estado</label>
-                <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${isDarkMode ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800'}`}>
-                  {selectedAppointment.status === 'CONFIRMED' ? 'Confirmada' : 'Pendiente'}
-                </span>
-              </div>
-
-              {selectedAppointment.createdAt && (
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Fecha de creación</label>
-                  <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {new Date(selectedAppointment.createdAt).toLocaleString('es-ES')}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className={`flex justify-end p-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}>
-              <button 
-                onClick={closeModal}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors ${isDarkMode ? 'bg-white hover:bg-gray-200 text-black' : 'bg-black hover:bg-gray-800 text-white'}`}
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AppointmentModal 
+        isDarkMode={isDarkMode} 
+        selectedAppointment={selectedAppointment} 
+        closeModal={closeModal} 
+      />
     </div>
   );
 }
