@@ -17,6 +17,16 @@ export interface Appointment {
   confirmed?: boolean;
 }
 
+export interface AppointmentByMonth {
+  id: number;
+  date: string;
+  time: string;
+  reason: string;
+  status: string;
+  guestName: string;
+  guestEmail: string;
+}
+
 export interface PageableSort {
   empty: boolean;
   sorted: boolean;

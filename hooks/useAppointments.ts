@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Appointment } from '../app/api/interface/ApointmentsInterface';
 import { AppointmentsByMonthResponse } from '../app/api/types/AppointmentsByMonthTypes';
 import getAllTheAppointmentsByMonth from '../app/api/services/getAllTheAppointmentsByMonth';
 import { CALENDAR_SETTINGS } from '../lib/constants';
 import { formatDateToISO } from '../lib/utils/dateUtils';
 
 export function useAppointments(year: number, month: number, refreshKey?: number) {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

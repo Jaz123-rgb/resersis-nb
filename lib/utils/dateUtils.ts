@@ -17,10 +17,13 @@ export function getMonthInfo(year: number, month: number) {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   
+  const firstDayOfMonth = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const daysInMonth = lastDay.getDate();
+  const startWeekday = firstDayOfMonth;
+
   return {
-    firstDay,
-    lastDay,
-    startWeekday: firstDay.getDay(),
-    daysInMonth: lastDay.getDate()
+    firstDayOfMonth,
+    daysInMonth,
+    startWeekday
   };
 }
