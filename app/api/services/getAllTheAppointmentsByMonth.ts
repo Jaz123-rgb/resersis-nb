@@ -1,4 +1,4 @@
-import { AppointmentsResponse } from "../interface/ApointmentsInterface";
+import { AppointmentsByMonthResponse } from "../types/AppointmentsByMonthTypes";
 
 interface GetAppointmentsParams {
   year: number;
@@ -9,9 +9,9 @@ interface GetAppointmentsParams {
 
 export default async function getAllTheAppointmentsByMonth(
   params: GetAppointmentsParams
-): Promise<AppointmentsResponse> {
+): Promise<AppointmentsByMonthResponse> {
   const { year, month, page, size } = params;
-  const url = `https://recersis-api.fly.dev/api/appointments/guest/by-month?year=${year}&month=${month}&page=${page}&size=${size}`;
+  const url = `https://recersis-api.onrender.com/api/appointments/guest/by-month?year=${year}&month=${month}&page=${page}&size=${size}`;
   
   const response = await fetch(url, {
     method: "GET",

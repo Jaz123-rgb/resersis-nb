@@ -1,12 +1,16 @@
 "use client";
 import React from "react";
-import { Appointment } from "../app/api/interface/ApointmentsInterface";
+
+interface AppointmentByMonth {
+  date: string;
+  time: string;
+}
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
   date: string;
-  appointments: Appointment[];
+  appointments: AppointmentByMonth[];
   onCreateAppointment: () => void;
 };
 
@@ -44,28 +48,16 @@ export default function DayAppointmentsModal({
         </div>
 
         <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
-          {appointments.map((appointment) => (
+          {appointments.map((appointment, index) => (
             <div
-              key={appointment.id}
+              key={`${appointment.date}-${appointment.time}-${index}`}
               className="border rounded p-3 bg-zinc-50 dark:bg-zinc-900"
             >
-              <div className="flex justify-between items-start mb-2">
-                <div className="font-medium text-sm dark:text-white">
-                  {appointment.time.slice(0, 5)} - {appointment.guestName}
-                </div>
-                <span className={`px-2 py-1 rounded text-xs ${
-                  appointment.status === 'CONFIRMED' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {appointment.status}
-                </span>
-              </div>
-              <div className="text-sm text-zinc-600 dark:text-zinc-300">
-                {appointment.reason}
+              <div className="font-medium text-sm dark:text-white">
+                {appointment.time.slice(0, 5)}
               </div>
               <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                {appointment.guestEmail}
+                {appointment.date}
               </div>
             </div>
           ))}

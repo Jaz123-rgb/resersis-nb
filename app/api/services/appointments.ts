@@ -25,7 +25,7 @@ export type GuestAppointmentResponse = {
   active: boolean;
 };
 
-export async function createGuestAppointment(payload: GuestAppointmentRequest, baseUrl = "https://recersis-api.fly.dev") {
+export async function createGuestAppointment(payload: GuestAppointmentRequest, baseUrl = "https://recersis-api.onrender.com") {
   const res = await fetch(`${baseUrl}/api/appointments/guest`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
