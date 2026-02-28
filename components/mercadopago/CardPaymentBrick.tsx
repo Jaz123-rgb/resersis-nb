@@ -22,9 +22,22 @@ async function loadMercadoPagoSdk() {
   });
 }
 
-export default function CardPaymentBrick() {
+type Appointment = {
+  id: number;
+  date: string;
+  time: string;
+  reason?: string;
+  status?: string;
+  guestName?: string;
+  guestEmail?: string;
+  managementToken?: string;
+  [k: string]: any;
+};
+
+export default function CardPaymentBrick({ appointment }: { appointment?: Appointment }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [ready, setReady] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -46,14 +59,68 @@ export default function CardPaymentBrick() {
               setReady(true);
             },
             onSubmit: (formData: any, additionalData: any) => {
-              return new Promise((resolve) => {
-                // Aquí solo hacemos logging y resolvemos para simular envío
-                console.log("MP Brick onSubmit", { formData, additionalData });
-                resolve(null);
+              setStatusMessage("Procesando pago...");
+              // Adjuntar appointment al additionalData para que viaje al backend
+              if (appointment) additionalData = { ...additionalData, appointment };
+
+              console.log("MP Brick onSubmit", { formData, additionalData });
+
+              return new Promise((resolve, reject) => {
+                const amountString =
+                  typeof formData.transaction_amount === "number"
+                    ? formData.transaction_amount.toFixed(2)
+                    : String(formData.transaction_amount);
+
+                const submitData = {
+                  type: "online",
+                  total_amount: amountString,
+                  external_reference: `appointment_${appointment?.id || "unknown"}`,
+                  processing_mode: "automatic",
+                  transactions: {
+                    payments: [
+                      {
+                        amount: amountString,
+                        payment_method: {
+                          id: formData.payment_method_id,
+                          type: additionalData.paymentTypeId,
+                          token: formData.token,
+                          installments: formData.installments,
+                        },
+                      },
+                    ],
+                  },
+                  payer: {
+                    email: formData.payer?.email || appointment?.guestEmail || null,
+                    identification: formData.payer?.identification || null,
+                  },
+                  appointment: appointment || null,
+                  raw: { formData, additionalData },
+                };
+
+                fetch("/api/appointments/guest/payments/checkout/adapted", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(submitData),
+                })
+                  .then((r) => {
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    return r.json().catch(() => ({}));
+                  })
+                  .then((response) => {
+                    console.log("response /api/...:", response);
+                    setStatusMessage("Pago procesado. Revisa la consola para detalles.");
+                    resolve(response);
+                  })
+                  .catch((error) => {
+                    console.error("error /api/...:", error);
+                    setStatusMessage("Error al procesar el pago. Intenta de nuevo.");
+                    reject(error);
+                  });
               });
             },
             onError: (error: any) => {
               console.error("MP Brick error:", error);
+              setStatusMessage("Ocurrió un error con el Brick.");
             },
           },
         } as any;
@@ -65,9 +132,9 @@ export default function CardPaymentBrick() {
         // crear y montar el Brick
         // @ts-ignore
         const controller = await bricksBuilder.create("cardPayment", containerId, settings);
-        // exponer por si se necesita en consola
-        // @ts-ignore
-        window.cardPaymentBrickController = controller;
+          // exponer por si se necesita en consola
+          // @ts-ignore
+          window.cardPaymentBrickController = controller;
       } catch (err) {
         console.error("Error montando Mercado Pago Brick:", err);
       }
@@ -80,12 +147,9 @@ export default function CardPaymentBrick() {
 
   return (
     <div>
-      <div
-        id="cardPaymentBrick_container"
-        ref={containerRef}
-        style={{ minHeight: 120 }}
-      />
+      <div id="cardPaymentBrick_container" ref={containerRef} style={{ minHeight: 120 }} />
       {!ready && <p>Cargando Brick de Mercado Pago…</p>}
+      {statusMessage && <p style={{ marginTop: 12 }}>{statusMessage}</p>}
     </div>
   );
 }
