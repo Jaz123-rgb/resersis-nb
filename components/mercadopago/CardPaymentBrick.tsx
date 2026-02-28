@@ -38,6 +38,8 @@ export default function CardPaymentBrick({ appointment }: { appointment?: Appoin
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [ready, setReady] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [successData, setSuccessData] = useState<any | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -120,7 +122,12 @@ export default function CardPaymentBrick({ appointment }: { appointment?: Appoin
                   })
                   .then((response) => {
                     console.log("response /api/...:", response);
-                    setStatusMessage("Pago procesado. Revisa la consola para detalles.");
+                    setSuccessData(response);
+                    const auth = response?.authorization_code || response?.id || "";
+                    setStatusMessage(
+                      `Pago procesado correctamente${auth ? ` — referencia: ${auth}` : ""}`
+                    );
+                    setShowSuccessModal(true);
                     resolve(response);
                   })
                   .catch((error) => {
@@ -166,7 +173,130 @@ export default function CardPaymentBrick({ appointment }: { appointment?: Appoin
     <div>
       <div id="cardPaymentBrick_container" ref={containerRef} style={{ minHeight: 120 }} />
       {!ready && <p>Cargando Brick de Mercado Pago…</p>}
-      {statusMessage && <p style={{ marginTop: 12 }}>{statusMessage}</p>}
+      {statusMessage && (
+        <p
+          style={{
+            marginTop: 12,
+            color: successData ? "#065f46" : "#b91c1c",
+            background: successData ? "#ecfdf5" : "#ffefef",
+            padding: "8px 12px",
+            borderRadius: 6,
+          }}
+        >
+          {statusMessage}
+        </p>
+      )}
+      {successData && (
+        <pre
+          style={{
+            marginTop: 8,
+            maxHeight: 220,
+            overflow: "auto",
+            background: "#f8fafc",
+            padding: 12,
+            borderRadius: 6,
+            color: "#0f172a",
+            border: "1px solid #e6eef6",
+            fontSize: 13,
+            lineHeight: 1.4,
+            fontFamily: "SFMono-Regular,Menlo,Monaco,Consolas,monospace",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        >
+          {JSON.stringify(
+            {
+              id: successData.id,
+              status: successData.status,
+              authorization_code: successData.authorization_code,
+              transaction_amount: successData.transaction_amount,
+            },
+            null,
+            2
+          )}
+        </pre>
+      )}
+      {showSuccessModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: "fixed",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 9999,
+            padding: 20,
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: 8,
+              maxWidth: 720,
+              width: "100%",
+              padding: 20,
+              color: "#0f172a",
+              boxShadow: "0 10px 30px rgba(2,6,23,0.2)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ margin: 0, color: "#0f172a" }}>Pago exitoso</h2>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                style={{ background: "transparent", border: "none", fontSize: 18, cursor: "pointer", color: "#374151" }}
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p style={{ marginTop: 8, color: "#0f172a" }}>{statusMessage}</p>
+
+            <section style={{ marginTop: 12, display: "grid", gap: 12 }}>
+              <div style={{ display: "flex", gap: 12 }}>
+                <strong style={{ color: "#111827" }}>Appointment:</strong>
+                <div style={{ color: "#374151" }}>
+                  <div>ID: {appointment?.id}</div>
+                  <div>
+                    Fecha: {appointment?.date} {appointment?.time}
+                  </div>
+                  <div>Paciente: {appointment?.guestName} ({appointment?.guestEmail})</div>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 12 }}>
+                <strong style={{ color: "#111827" }}>Pago:</strong>
+                <div style={{ color: "#374151" }}>
+                  <div>Id pago: {successData?.id}</div>
+                  <div>Estado: {successData?.status}</div>
+                  <div>Autorización: {successData?.authorization_code}</div>
+                  <div>Monto: {successData?.transaction_amount}</div>
+                </div>
+              </div>
+            </section>
+
+            <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end", gap: 8 }}>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 6,
+                  border: "1px solid #e5e7eb",
+                  background: "white",
+                  cursor: "pointer",
+                  color: "#111827",
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+ 
