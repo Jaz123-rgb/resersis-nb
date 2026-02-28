@@ -71,40 +71,52 @@ export default function CardPaymentBrick({ appointment }: { appointment?: Appoin
                     ? formData.transaction_amount.toFixed(2)
                     : String(formData.transaction_amount);
 
-                const submitData = {
-                  type: "online",
-                  total_amount: amountString,
-                  external_reference: `appointment_${appointment?.id || "unknown"}`,
-                  processing_mode: "automatic",
-                  transactions: {
-                    payments: [
-                      {
-                        amount: amountString,
-                        payment_method: {
-                          id: formData.payment_method_id,
-                          type: additionalData.paymentTypeId,
-                          token: formData.token,
-                          installments: formData.installments,
-                        },
-                      },
-                    ],
+                // Adaptar a formato solicitado por el backend: { formData, additionalData }
+                // Enriquecer formData.payer con datos de la appointment si están disponibles
+                const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080";
+
+                const payer = {
+                  ...(formData.payer || {}),
+                };
+                if (appointment) {
+                  if (appointment.guestName && !payer.first_name) {
+                    // intentar separar nombre y apellido simple (todo en first_name si no hay espacio)
+                    const parts = appointment.guestName.split(" ");
+                    payer.first_name = parts.shift() || appointment.guestName;
+                    payer.last_name = parts.join(" ") || payer.last_name || "";
+                  }
+                  if (!payer.email) payer.email = appointment.guestEmail || payer.email;
+                  if (!payer.identification && formData.payer?.identification) payer.identification = formData.payer.identification;
+                }
+
+                const body = {
+                  formData: {
+                    ...formData,
+                    payer,
                   },
-                  payer: {
-                    email: formData.payer?.email || appointment?.guestEmail || null,
-                    identification: formData.payer?.identification || null,
+                  additionalData: {
+                    ...additionalData,
+                    // asegurar que appointment venga dentro de additionalData (backend lo espera ahí)
+                    appointment: appointment || additionalData.appointment || null,
                   },
-                  appointment: appointment || null,
-                  raw: { formData, additionalData },
                 };
 
-                fetch("/api/appointments/guest/payments/checkout/adapted", {
+                fetch(`${API_BASE}/api/appointments/guest/payments/checkout`, {
                   method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(submitData),
+                  headers: { "Content-Type": "application/json", Accept: "application/json" },
+                  // evitar enviar cookies para no forzar Access-Control-Allow-Credentials
+                  credentials: "omit",
+                  body: JSON.stringify(body),
                 })
-                  .then((r) => {
-                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-                    return r.json().catch(() => ({}));
+                  .then(async (r) => {
+                    if (r.ok) return r.json().catch(() => ({}));
+                    const text = await r.text().catch(() => "");
+                    const err = new Error(`HTTP ${r.status}: ${text}`);
+                    // @ts-ignore
+                    err.status = r.status;
+                    // @ts-ignore
+                    err.body = text;
+                    throw err;
                   })
                   .then((response) => {
                     console.log("response /api/...:", response);
@@ -113,7 +125,12 @@ export default function CardPaymentBrick({ appointment }: { appointment?: Appoin
                   })
                   .catch((error) => {
                     console.error("error /api/...:", error);
-                    setStatusMessage("Error al procesar el pago. Intenta de nuevo.");
+                    // @ts-ignore
+                    if (error && (error.status === 403 || String(error).includes("HTTP 403"))) {
+                      setStatusMessage("403 Forbidden: revisa permisos en el backend o el formato del request.");
+                    } else {
+                      setStatusMessage("Error al procesar el pago. Intenta de nuevo.");
+                    }
                     reject(error);
                   });
               });
